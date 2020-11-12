@@ -27,14 +27,16 @@ object KNN {
         sc = new SparkContext(conf)
 
 
-        val train = sc.textFile(pathTrain: String).map(line => converter.parserToLabeledPoint(line)).toDF().persist
-      val test = sc.textFile(pathTest: String).map(line => converter.parserToLabeledPoint(line)).toDF().persist
+        val train = sc.textFile(pathTrain: String)
+        val test = sc.textFile(pathTest: String)
 
-      train.map( 
+        /*
+        train.map {
 
-      ).reduceByKey(
+        }.reduceByKey {
 
-      )
+        }
+        */
 
     }
 
