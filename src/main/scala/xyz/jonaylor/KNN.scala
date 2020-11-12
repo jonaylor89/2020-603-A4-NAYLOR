@@ -1,7 +1,9 @@
 
 package xyz.jonaylor
 
+import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
+import org.apache.spark.SparkContext._;
 
 object KNN {
 
@@ -10,17 +12,17 @@ object KNN {
 
     def main(argv: Array[String]) = {
 
-        if (argv.length < 4) {
+        if (argv.length < 3) {
             println("Wrong number of arguments")
             System.exit(1)
         }
 
-        val pathTrain = arg(1)
-        val pathTest = arg(2)
-        k = arg(3).toInt
+        val pathTrain = argv(0)
+        val pathTest = argv(1)
+        k = argv(2).toInt
 
         //Basic setup
-        val jobName = "Naylor - KNN -> " + outDisplay + " K = " + K
+        val jobName = "Naylor - KNN -> K = " + k
 
         //Spark Configuration
         val conf = new SparkConf().setAppName(jobName)
@@ -29,6 +31,8 @@ object KNN {
 
         val train = sc.textFile(pathTrain: String)
         val test = sc.textFile(pathTest: String)
+
+        println("HELLLLLLO WORLD")
 
         /*
         train.map {
