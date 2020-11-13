@@ -3,6 +3,7 @@ package xyz.jonaylor
 
 import math._
 import scala.collection.mutable.Map
+import scala.collection.mutable.HashMap
 import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
 import org.apache.spark.SparkContext._;
@@ -50,7 +51,6 @@ object KNN {
         val knnGrouped = knnMapped.groupByKey()
         knnMapped.saveAsTextFile("./knnGrouped")
 
-/*
         val knnOutput = knnGrouped.mapValues(neighbors => {
             val k = broadcastK.value 
             val nearestK = findNearest(neighbors, k)
@@ -61,8 +61,6 @@ object KNN {
         })
 
         knnOutput.saveAsTextFile("./knnOutput");
-        */
-
     }
 
     def euclideanDistance(test: Array[Double], train: Array[Double]) = {
@@ -73,8 +71,8 @@ object KNN {
         )
     }
 
-    def findNearest(neighbors: Array[Tuple2[Double,Int]], k: Int): Map[Double,Int] = {
-        var nearest = new Map[Double,Int]() 
+    def findNearest(neighbors: Iterable[Tuple2[Double,Int]], k: Int): Map[Double,Int] = {
+        var nearest = new HashMap[Double,Int]() 
         neighbors.foreach{ case (distance, classification) =>
 
             nearest += (distance -> classification)
@@ -88,7 +86,7 @@ object KNN {
     }
 
     def buildClassification(nearest: Map[Double,Int]): Map[Double,Int] = {
-        var majority = Map[Double,Int]()
+        var majority = HashMap[Double,Int]()
         
         nearest.foreach { case (distance, classification) =>
         
@@ -100,7 +98,8 @@ object KNN {
     def classifyByMajority(majority: Map[Double,Int]): Int = {
         var votes: Int = 0
         var theClassification: Int = -1
-        
 
+
+        return theClassification
     }
 }
