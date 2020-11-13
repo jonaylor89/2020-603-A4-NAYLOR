@@ -19,11 +19,11 @@ object KNN {
         val K = argv(1).toInt
 
         //Basic setup
-        val jobName = "Naylor - KNN -> K = " + k
+        val jobName = "Naylor - KNN -> K = " + K
 
         //Spark Configuration
         val conf = new SparkConf().setAppName(jobName)
-        sc = new SparkContext(conf)
+        val sc = new SparkContext(conf)
 
 
         val broadcastK = sc.broadcast(K)
@@ -32,32 +32,35 @@ object KNN {
 
         val cart = test.cartesian(train)
         
-        val knnMapped = cart.map(case (testValue, trainValue) => { 
-            val testId = testValue._0
-            val testTokens = testValue._1.split(",")
-            val trainTokens = trainValue.split(",")
+        val knnMapped = cart.map{case (testValue, trainValue) => { 
+                val testId = testValue._1
+                val testTokens = testValue._2.split(",").map(_.toDouble)
+                val trainTokens = trainValue.split(",").map(_.toDouble)
 
-            val distance = euclideanDistance(testTokens, trainTokens) 
-            val classification = trainValue.last
+                val distance = euclideanDistance(testTokens, trainTokens) 
+                val classification = trainValue.last
 
-            return (testID, (distance, classification))
-        })
+                (testId, (distance, classification))
+            }
+        }
     
         knnMapped.saveAsTextFile("./knnMapped")
 
         val knnGrouped = knnMapped.groupByKey()
         knnMapped.saveAsTextFile("./knnGrouped")
 
+/*
         val knnOutput = knnGrouped.mapValues(neighbors => {
             val k = broadcastK.value 
             val nearestK = findNearest(neighbors, k)
             val majority = buildClassification(nearestK)
-            val selectedClassification = classifyByMajority(majority);
+            val selectedClassification = classifyByMajority(majority)
 
-            return selectedClassification;
+            selectedClassification
         })
 
         knnOutput.saveAsTextFile("./knnOutput");
+        */
 
     }
 
@@ -69,15 +72,15 @@ object KNN {
         )
     }
 
-    def findNearest(neighbors: Array[], k: Int) = {
+    def findNearest(neighbors: Array[Array[Double]], k: Int) = {
 
     }
 
-    def buildClassification(nearest: Array[]) = {
+    def buildClassification(nearest: Array[Array[Double]]) = {
 
     }
     
-    def classifyByMajority(Map[String;Int]) = {
+    def classifyByMajority(blah: Map[Double,Int]) = {
 
     }
 }
