@@ -39,7 +39,7 @@ object KNN {
 
         val cart = test.cartesian(train)
         
-        val knnMapped = cart.map{case (testValue, trainValue) => { 
+        val mapped = cart.map{case (testValue, trainValue) => { 
                 val testId = testValue._1
                 val testTokens = testValue._2
                 val trainTokens = trainValue
@@ -51,12 +51,12 @@ object KNN {
             }
         }
     
-        val knnGrouped = knnMapped.aggregateByKey(List[Tuple2[Double,Int]]())(
+        val grouped = mapped.aggregateByKey(List[Tuple2[Double,Int]]())(
             (aggr, value) => aggr ::: (value :: Nil),
             (aggr1, aggr2) => aggr1 ::: aggr2
         )
 
-        val knnOutput = knnGrouped.mapValues(neighbors => {
+        val output = grouped.mapValues(neighbors => {
             val k = broadcastK.value 
             val nearestK = findNearest(neighbors, k)
             val majority = buildClassification(nearestK)
@@ -65,7 +65,7 @@ object KNN {
             selectedClassification
         })
 
-        knnOutput.saveAsTextFile("./knnOutput");
+        output.saveAsTextFile("./output");
     }
 
     def euclideanDistance(test: Array[Double], train: Array[Double]) = {
