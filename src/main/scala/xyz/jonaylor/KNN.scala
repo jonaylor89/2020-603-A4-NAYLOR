@@ -50,13 +50,11 @@ object KNN {
                 (testId, (distance, classification))
             }
         }
-        knnMapped.saveAsTextFile("./knnMapped")
     
         val knnGrouped = knnMapped.aggregateByKey(List[Tuple2[Double,Int]]())(
             (aggr, value) => aggr ::: (value :: Nil),
             (aggr1, aggr2) => aggr1 ::: aggr2
         )
-        knnMapped.saveAsTextFile("./knnGrouped")
 
         val knnOutput = knnGrouped.mapValues(neighbors => {
             val k = broadcastK.value 
