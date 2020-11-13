@@ -2,6 +2,7 @@
 package xyz.jonaylor
 
 import math._
+import scala.collection.mutable.Map
 import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
 import org.apache.spark.SparkContext._;
@@ -10,7 +11,7 @@ object KNN {
 
     def main(argv: Array[String]) = {
 
-        if (argv.length < 3) {
+        if (argv.length < 2) {
             println("Wrong number of arguments")
             System.exit(1)
         }
@@ -38,7 +39,7 @@ object KNN {
                 val trainTokens = trainValue.split(",").map(_.toDouble)
 
                 val distance = euclideanDistance(testTokens, trainTokens) 
-                val classification = trainValue.last
+                val classification = trainValue.last.toInt
 
                 (testId, (distance, classification))
             }
@@ -72,15 +73,34 @@ object KNN {
         )
     }
 
-    def findNearest(neighbors: Array[Array[Double]], k: Int) = {
+    def findNearest(neighbors: Array[Tuple2[Double,Int]], k: Int): Map[Double,Int] = {
+        var nearest = new Map[Double,Int]() 
+        neighbors.foreach{ case (distance, classification) =>
 
+            nearest += (distance -> classification)
+
+            if (nearest.size > k) {
+                nearest.drop(k)
+            }      
+        }
+
+        return nearest
     }
 
-    def buildClassification(nearest: Array[Array[Double]]) = {
+    def buildClassification(nearest: Map[Double,Int]): Map[Double,Int] = {
+        var majority = Map[Double,Int]()
+        
+        nearest.foreach { case (distance, classification) =>
+        
+        }
 
+        return majority
     }
     
-    def classifyByMajority(blah: Map[Double,Int]) = {
+    def classifyByMajority(majority: Map[Double,Int]): Int = {
+        var votes: Int = 0
+        var theClassification: Int = -1
+        
 
     }
 }
