@@ -2,6 +2,7 @@
 package xyz.jonaylor
 
 import math._
+import scala.util.Try
 import scala.collection.mutable.Map
 import scala.collection.mutable.HashMap
 import org.apache.spark.SparkConf;
@@ -30,14 +31,18 @@ object KNN {
 
         val broadcastK = sc.broadcast(K)
         val train = sc.textFile(pathTrain: String)
+                                .map(
+                                        _.split(",")
+                                        .map(v => Try(v.toDouble).getOrElse(0.0))
+                                    )
         val test = train.zipWithIndex.map{case (k,v) => (v,k)}
 
         val cart = test.cartesian(train)
         
         val knnMapped = cart.map{case (testValue, trainValue) => { 
                 val testId = testValue._1
-                val testTokens = testValue._2.split(",").map(_.toDouble)
-                val trainTokens = trainValue.split(",").map(_.toDouble)
+                val testTokens = testValue._2
+                val trainTokens = trainValue
 
                 val distance = euclideanDistance(testTokens, trainTokens) 
                 val classification = trainValue.last.toInt
@@ -46,8 +51,6 @@ object KNN {
             }
         }
     
-        knnMapped.saveAsTextFile("./knnMapped")
-
         val knnGrouped = knnMapped.groupByKey()
         knnMapped.saveAsTextFile("./knnGrouped")
 
