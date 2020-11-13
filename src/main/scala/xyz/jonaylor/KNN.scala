@@ -7,9 +7,6 @@ import org.apache.spark.SparkContext._;
 
 object KNN {
 
-    var k = 5
-    var sc: SparkContext = null
-
     def main(argv: Array[String]) = {
 
         if (argv.length < 3) {
@@ -18,8 +15,7 @@ object KNN {
         }
 
         val pathTrain = argv(0)
-        val pathTest = argv(1)
-        k = argv(2).toInt
+        val K = argv(1).toInt
 
         //Basic setup
         val jobName = "Naylor - KNN -> K = " + k
@@ -29,18 +25,55 @@ object KNN {
         sc = new SparkContext(conf)
 
 
+        val broadcastK = sc.broadcast(K)
         val train = sc.textFile(pathTrain: String)
-        val test = sc.textFile(pathTest: String)
+        val test = train.zipWithIndex.map{case (k,v) => (v,k)}
 
-        println("HELLLLLLO WORLD")
+        val cart = test.cartesian(train)
+        
+        val knnMapped = cart.map(case (testValue, trainValue) => { 
 
-        /*
-        train.map {
+            val distance = euclideanDistance(testValue._1, trainValue) 
+            val classification = trainValue._1[d]
 
-        }.reduceByKey {
+            return (testValue._0, (distance, classification))
+        })
+    
+        knnMapped.saveAsTextFile("./knnMapped")
 
-        }
-        */
+        val knnGrouped = knnMapped.groupByKey()
+        knnMapped.saveAsTextFile("./knnGrouped")
+
+        val knnOutput = knnGrouped.mapValues(v => {
+            val k = broadcastK.value 
+            val nearestK = findNearest(neighbors, k)
+            val majority = buildClassification(nearestK)
+            val selectedClassification = classifyByMajority(majority);
+
+            return selectedClassification;
+        })
+
+        knnOutput.saveAsTextFile("./knnOutput");
+
+    }
+
+    def euclideanDistance(test: Array[Double], train: Array[Double]) = {
+        sqrt(
+            (train.dropRight(1) zip test.dropRight(1))
+                    .map { case (x,y) => pow(y - x, 2) }
+                    .sum
+        )
+    }
+
+    def findNearest() = {
+
+    }
+
+    def buildClassification() = {
+
+    }
+    
+    def classifyByMajority() = {
 
     }
 
