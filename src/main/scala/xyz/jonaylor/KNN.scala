@@ -1,6 +1,7 @@
 
 package xyz.jonaylor
 
+import math._
 import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
 import org.apache.spark.SparkContext._;
@@ -32,11 +33,14 @@ object KNN {
         val cart = test.cartesian(train)
         
         val knnMapped = cart.map(case (testValue, trainValue) => { 
+            val testId = testValue._0
+            val testTokens = testValue._1.split(",")
+            val trainTokens = trainValue.split(",")
 
-            val distance = euclideanDistance(testValue._1, trainValue) 
-            val classification = trainValue._1[d]
+            val distance = euclideanDistance(testTokens, trainTokens) 
+            val classification = trainValue.last
 
-            return (testValue._0, (distance, classification))
+            return (testID, (distance, classification))
         })
     
         knnMapped.saveAsTextFile("./knnMapped")
@@ -44,7 +48,7 @@ object KNN {
         val knnGrouped = knnMapped.groupByKey()
         knnMapped.saveAsTextFile("./knnGrouped")
 
-        val knnOutput = knnGrouped.mapValues(v => {
+        val knnOutput = knnGrouped.mapValues(neighbors => {
             val k = broadcastK.value 
             val nearestK = findNearest(neighbors, k)
             val majority = buildClassification(nearestK)
@@ -65,38 +69,15 @@ object KNN {
         )
     }
 
-    def findNearest() = {
+    def findNearest(neighbors: Array[], k: Int) = {
 
     }
 
-    def buildClassification() = {
+    def buildClassification(nearest: Array[]) = {
 
     }
     
-    def classifyByMajority() = {
-
-    }
-
-        /***************************************
-        MAPPING
-            for t = 0 to TS_i.size() 
-                CD_tj = KNN(TRj, TSj(x). k)
-                results_j = (t, CD_tj)
-                EMIT(result)
-        ****************************************/
-
-        /**********************************
-        REDUCING
-            cont = 0
-            for i = 0 - k
-                if result_key(cont).dist < result_reducer(i).dist 
-                    result_reducer(i) = result_key(cont)
-                    cont++
-                end
-            end
-        ************************************/
-
-    def KNN() = {
+    def classifyByMajority(Map[String;Int]) = {
 
     }
 }
