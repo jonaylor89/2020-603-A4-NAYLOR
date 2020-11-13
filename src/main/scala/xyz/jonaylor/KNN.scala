@@ -55,7 +55,7 @@ object KNN {
             val k = broadcastK.value 
             val nearestK = findNearest(neighbors, k)
             val majority = buildClassification(nearestK)
-            val selectedClassification = classifyByMajority(majority)
+            val selectedClassification = majority.valuesIterator.max
 
             selectedClassification
         })
@@ -85,21 +85,17 @@ object KNN {
         return nearest
     }
 
-    def buildClassification(nearest: Map[Double,Int]): Map[Double,Int] = {
-        var majority = HashMap[Double,Int]()
+    def buildClassification(nearest: Map[Double,Int]): Map[Int,Int] = {
+        var majority = HashMap[Int,Int]()
         
         nearest.foreach { case (distance, classification) =>
-        
+            if (majority contains classification) {
+                majority(classification) = majority(classification) + 1
+            } else {
+                majority(classification) = 1
+            }
         }
 
         return majority
     }
-    
-    def classifyByMajority(majority: Map[Double,Int]): Int = {
-        var votes: Int = 0
-        var theClassification: Int = -1
-
-
-        return theClassification
-    }
-}
+} 
