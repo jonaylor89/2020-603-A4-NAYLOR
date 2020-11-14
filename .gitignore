@@ -3,3 +3,4 @@ spark-*
 knnMapped/
 knnGrouped/
 knnOutput/
+output/
